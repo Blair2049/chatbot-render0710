@@ -1,0 +1,9 @@
+flask==2.3.3
+lightrag-hku
+openai
+numpy
+networkx
+tiktoken
+python-dotenv
+nest-asyncio
+asyncio 
