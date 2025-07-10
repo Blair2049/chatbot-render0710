@@ -2,6 +2,7 @@ services:
   - type: web
     name: stakeholder-management-chatbot
     env: python
+    pythonVersion: "3.11"
     buildCommand: pip install -r requirements.txt
     startCommand: python chatbot_web.py
     envVars:

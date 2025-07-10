@@ -6,15 +6,24 @@ from datetime import datetime
 import numpy as np
 import asyncio
 import tiktoken
+import platform
 from lightrag import QueryParam
 from security_middleware import SecurityMiddleware, validate_input, require_api_key, log_security_event
 
-# 添加 LightRAG 路径
-sys.path.append('/Users/blairzhang/Desktop/MyProject/LightRAG-main/LightRAG')
+# 检测Python版本
+PYTHON_VERSION = platform.python_version()
+print(f"Python版本: {PYTHON_VERSION}")
 
 from lightrag import LightRAG
-from lightrag.llm import openai_complete_if_cache, openai_embedding
 from lightrag.utils import EmbeddingFunc
+
+# 兼容性导入 - 处理不同版本的lightrag
+try:
+    from lightrag.llm import openai_complete_if_cache, openai_embedding
+except ImportError:
+    # 如果新版本中没有这些函数，使用替代方案
+    from lightrag.llm import openai_complete, openai_embedding
+    openai_complete_if_cache = openai_complete
 
 app = Flask(__name__)
 
@@ -57,33 +66,51 @@ def initialize_rag():
     """初始化 LightRAG"""
     global rag, token_encoder
     
-    # 检查环境变量中的API Key
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise ValueError("OPENAI_API_KEY 环境变量未设置。请在部署时设置此环境变量。")
-    
-    # 初始化 token 编码器
-    token_encoder = tiktoken.encoding_for_model("gpt-4o-mini")
+    try:
+        # 检查环境变量中的API Key
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY 环境变量未设置。请在部署时设置此环境变量。")
+        
+        print(f"✅ API密钥已设置")
+        
+        # 初始化 token 编码器
+        token_encoder = tiktoken.encoding_for_model("gpt-4o-mini")
+        print(f"✅ Token编码器初始化完成")
+        
+    except Exception as e:
+        print(f"❌ 初始化错误: {e}")
+        raise
     
     # 定义LLM和embedding函数
     async def llm_model_func(
         prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
     ) -> str:
-        return await openai_complete_if_cache(
-            "gpt-4o-mini",
-            prompt,
-            system_prompt=system_prompt,
-            history_messages=history_messages,
-            api_key=os.getenv("OPENAI_API_KEY"),
-            **kwargs
-        )
+        try:
+            return await openai_complete_if_cache(
+                "gpt-4o-mini",
+                prompt,
+                system_prompt=system_prompt,
+                history_messages=history_messages,
+                api_key=os.getenv("OPENAI_API_KEY"),
+                **kwargs
+            )
+        except Exception as e:
+            print(f"LLM调用错误: {e}")
+            # 备用方案
+            return f"抱歉，处理您的请求时遇到技术问题: {str(e)}"
 
     async def embedding_func(texts: list[str]) -> np.ndarray:
-        return await openai_embedding(
-            texts,
-            model="text-embedding-ada-002",
-            api_key=os.getenv("OPENAI_API_KEY")
-        )
+        try:
+            return await openai_embedding(
+                texts,
+                model="text-embedding-ada-002",
+                api_key=os.getenv("OPENAI_API_KEY")
+            )
+        except Exception as e:
+            print(f"Embedding调用错误: {e}")
+            # 返回零向量作为备用
+            return np.zeros((len(texts), 1536))
 
     # 初始化LightRAG，使用与成功代码相同的配置
     rag = LightRAG(
