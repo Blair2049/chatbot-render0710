@@ -296,9 +296,32 @@ MIT License
 
 ## 🔑 API密钥设置
 
-### OpenAI API密钥配置
+### 方法一：使用Secret Files（推荐）
 
-**重要**: 如果遇到API密钥相关错误，请参考详细的 [API密钥设置指南](RENDER_API_KEY_SETUP.md)
+**重要**: 推荐使用Render的Secret Files功能，更安全且易于管理。详细指南请参考 [Secret Files设置指南](SECRET_FILES_SETUP.md)
+
+#### 快速设置步骤
+1. 创建 `.env` 文件：
+   ```bash
+   OPENAI_API_KEY=your_openai_api_key_here
+   SECRET_KEY=your_secret_key_here
+   FLASK_ENV=production
+   FLASK_DEBUG=false
+   PORT=10000
+   ```
+
+2. 在Render控制台：
+   - 进入服务设置 → Environment
+   - 在 "Secret Files" 部分点击 "Add Secret File"
+   - **File Name**: `.env`
+   - **File Content**: 粘贴您的.env文件内容
+   - 点击 "Save"
+
+3. 重新部署服务
+
+### 方法二：使用环境变量
+
+**参考**: 详细指南请参考 [API密钥设置指南](RENDER_API_KEY_SETUP.md)
 
 #### 获取API密钥
 1. 访问 [OpenAI Platform](https://platform.openai.com/)
@@ -316,21 +339,25 @@ MIT License
    - **Value**: 您的完整API密钥
 5. 保存并重新部署
 
-#### 本地测试
+### 本地测试
 ```bash
-# 设置环境变量
+# 方法1: 使用.env文件
+echo "OPENAI_API_KEY=your-api-key-here" > .env
+python chatbot_web.py
+
+# 方法2: 使用环境变量
 export OPENAI_API_KEY="your-api-key-here"
+python chatbot_web.py
 
 # 运行诊断脚本
 python api_key_debug.py
-
-# 启动应用
-python chatbot_web.py
+python env_config.py
 ```
 
-#### 常见问题
+### 常见问题
 - **401错误**: 检查API密钥格式和有效性
 - **密钥截断**: 确保复制完整的密钥，无多余字符
+- **Secret Files未加载**: 检查文件格式和内容
 - **环境变量未生效**: 重新部署服务
 
 ---

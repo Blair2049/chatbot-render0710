@@ -2,13 +2,77 @@ from flask import Flask, render_template, request, jsonify
 import os
 import sys
 import json
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import numpy as np
 import asyncio
 import tiktoken
 import platform
+from pathlib import Path
 # 添加当前目录到Python路径，以便导入本地lightrag模块
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# 在导入其他模块前，先加载环境变量
+def load_environment():
+    """加载环境变量，支持Secret Files"""
+    # 优先级1: 检查Render Secret Files
+    secrets_dir = Path("/etc/secrets")
+    if secrets_dir.exists():
+        try:
+            # 查找.env文件
+            env_file = secrets_dir / ".env"
+            if env_file.exists():
+                with open(env_file, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#'):
+                            if '=' in line:
+                                key, value = line.split('=', 1)
+                                os.environ[key.strip()] = value.strip()
+                print("✅ 从Render Secret Files加载环境变量")
+                return True
+            
+            # 查找单独的密钥文件
+            api_key_file = secrets_dir / "openai_api_key"
+            if api_key_file.exists():
+                with open(api_key_file, 'r') as f:
+                    os.environ["OPENAI_API_KEY"] = f.read().strip()
+                print("✅ 从Secret Files加载API密钥")
+                return True
+        except Exception as e:
+            print(f"⚠️  读取Secret Files失败: {e}")
+    
+    # 优先级2: 检查本地.env文件
+    env_files = [".env", ".env.local", ".env.production"]
+    for env_file in env_files:
+        if os.path.exists(env_file):
+            try:
+                with open(env_file, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#'):
+                            if '=' in line:
+                                key, value = line.split('=', 1)
+                                os.environ[key.strip()] = value.strip()
+                print(f"✅ 从{env_file}加载环境变量")
+                return True
+            except Exception as e:
+                print(f"⚠️  读取{env_file}失败: {e}")
+    
+    return False
+
+# 加载环境变量
+load_environment()
+
+def get_local_time():
+    """获取本地时区时间"""
+    utc_now = datetime.now(timezone.utc)
+    local_tz = timezone(timedelta(hours=8))  # UTC+8
+    local_time = utc_now.astimezone(local_tz)
+    return local_time
+
+def get_current_time():
+    """获取当前时间（本地时区）"""
+    return get_local_time().strftime("%Y-%m-%d %H:%M:%S")
 
 from lightrag import QueryParam
 from lightrag import LightRAG
@@ -385,7 +449,7 @@ def query_with_best_mode(question, language):
             
             # 记录到token_usage_history列表（用于前端图表显示）
             token_history_record = {
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": get_local_time().isoformat(),
                 "input_tokens": best_result["tokens"]["input"],
                 "output_tokens": best_result["tokens"]["output"],
                 "total_tokens": best_result["tokens"]["input"] + best_result["tokens"]["output"],
@@ -395,7 +459,7 @@ def query_with_best_mode(question, language):
             
             # 记录查询历史
             query_record = {
-                "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                "timestamp": get_current_time(),
                 "question": question,
                 "response": best_result["response"],
                 "mode": best_mode,
@@ -481,7 +545,7 @@ def chat():
                 
                 # 记录到token_usage_history列表（用于前端图表显示）
                 token_history_record = {
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": get_local_time().isoformat(),
                     "input_tokens": input_tokens,
                     "output_tokens": output_tokens,
                     "total_tokens": input_tokens + output_tokens,
@@ -494,7 +558,7 @@ def chat():
                 
                 # 记录查询历史
                 query_record = {
-                    "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    "timestamp": get_current_time(),
                     "question": question,
                     "response": response,
                     "mode": mode,
@@ -583,7 +647,7 @@ def get_token_usage():
         response_data = {
             "total": total_usage,
             "models": model_usage,
-            "last_updated": datetime.now().isoformat()
+            "last_updated": get_local_time().isoformat()
         }
         
         # 如果不只是摘要，添加每日使用情况
