@@ -294,4 +294,45 @@ MIT License
 
 ---
 
+## 🔑 API密钥设置
+
+### OpenAI API密钥配置
+
+**重要**: 如果遇到API密钥相关错误，请参考详细的 [API密钥设置指南](RENDER_API_KEY_SETUP.md)
+
+#### 获取API密钥
+1. 访问 [OpenAI Platform](https://platform.openai.com/)
+2. 登录您的账户
+3. 进入 [API Keys](https://platform.openai.com/api-keys) 页面
+4. 点击 "Create new secret key"
+5. 复制完整的API密钥（以 `sk-` 开头）
+
+#### 在Render中设置
+1. 登录 [Render控制台](https://dashboard.render.com/)
+2. 找到您的服务
+3. 进入 "Environment" 设置
+4. 添加环境变量：
+   - **Key**: `OPENAI_API_KEY`
+   - **Value**: 您的完整API密钥
+5. 保存并重新部署
+
+#### 本地测试
+```bash
+# 设置环境变量
+export OPENAI_API_KEY="your-api-key-here"
+
+# 运行诊断脚本
+python api_key_debug.py
+
+# 启动应用
+python chatbot_web.py
+```
+
+#### 常见问题
+- **401错误**: 检查API密钥格式和有效性
+- **密钥截断**: 确保复制完整的密钥，无多余字符
+- **环境变量未生效**: 重新部署服务
+
+---
+
 **注意**：部署前请确保已正确设置OpenAI API密钥，并了解相关使用限制和成本。 

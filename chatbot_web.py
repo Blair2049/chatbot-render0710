@@ -63,7 +63,21 @@ def initialize_rag():
         if not api_key:
             raise ValueError("OPENAI_API_KEY 环境变量未设置。请在部署时设置此环境变量。")
         
-        print(f"✅ API密钥已设置")
+        # 验证API密钥格式
+        if not api_key.startswith("sk-"):
+            raise ValueError("API密钥格式不正确，应以'sk-'开头")
+        
+        if len(api_key) < 20:
+            raise ValueError("API密钥长度不足，请检查是否完整")
+        
+        # 检查密钥是否包含特殊字符或空格
+        stripped_key = api_key.strip()
+        if stripped_key != api_key:
+            print("⚠️  警告：API密钥包含前导或尾随空格")
+            api_key = stripped_key
+        
+        print(f"✅ API密钥已设置 (长度: {len(api_key)})")
+        print(f"   密钥预览: {api_key[:10]}...{api_key[-4:]}")
         
         # 初始化 token 编码器
         token_encoder = tiktoken.encoding_for_model("gpt-4o-mini")
@@ -71,6 +85,12 @@ def initialize_rag():
         
     except Exception as e:
         print(f"❌ 初始化错误: {e}")
+        print("\n🔧 解决方案:")
+        print("1. 在Render控制台中设置环境变量")
+        print("2. 变量名: OPENAI_API_KEY")
+        print("3. 变量值: 您的完整OpenAI API密钥")
+        print("4. 确保密钥格式正确（以'sk-'开头）")
+        print("5. 重新部署服务")
         raise
     
     # 定义LLM和embedding函数
@@ -78,25 +98,54 @@ def initialize_rag():
         prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
     ) -> str:
         try:
+            api_key = os.getenv("OPENAI_API_KEY")
+            if not api_key:
+                return "错误：API密钥未设置。请在Render环境变量中设置OPENAI_API_KEY。"
+            
+            # 验证API密钥格式
+            if not api_key.startswith("sk-"):
+                return "错误：API密钥格式不正确，应以'sk-'开头。"
+            
+            # 清理密钥中的空格
+            api_key = api_key.strip()
+            
             return await openai_complete_if_cache(
                 "gpt-4o-mini",
                 prompt,
                 system_prompt=system_prompt,
                 history_messages=history_messages,
-                api_key=os.getenv("OPENAI_API_KEY"),
+                api_key=api_key,
                 **kwargs
             )
         except Exception as e:
             print(f"LLM调用错误: {e}")
-            # 备用方案
-            return f"抱歉，处理您的请求时遇到技术问题: {str(e)}"
+            # 更详细的错误信息
+            error_str = str(e).lower()
+            if "invalid_api_key" in error_str:
+                return "错误：API密钥无效。请检查Render环境变量中的OPENAI_API_KEY设置。"
+            elif "401" in error_str:
+                return "错误：API认证失败。请检查API密钥是否正确。"
+            elif "incorrect api key" in error_str:
+                return "错误：API密钥不正确。请确保密钥完整且格式正确。"
+            elif "invalid_request_error" in error_str:
+                return "错误：API请求无效。请检查API密钥格式。"
+            else:
+                return f"抱歉，处理您的请求时遇到技术问题: {str(e)}"
 
     async def embedding_func(texts: list[str]) -> np.ndarray:
         try:
+            api_key = os.getenv("OPENAI_API_KEY")
+            if not api_key:
+                print("警告：API密钥未设置，使用零向量")
+                return np.zeros((len(texts), 1536))
+            
+            # 清理密钥中的空格
+            api_key = api_key.strip()
+            
             return await openai_embedding(
                 texts,
                 model="text-embedding-ada-002",
-                api_key=os.getenv("OPENAI_API_KEY")
+                api_key=api_key
             )
         except Exception as e:
             print(f"Embedding调用错误: {e}")
