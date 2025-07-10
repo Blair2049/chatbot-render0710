@@ -7,23 +7,14 @@ import numpy as np
 import asyncio
 import tiktoken
 import platform
+# 添加当前目录到Python路径，以便导入本地lightrag模块
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from lightrag import QueryParam
-from security_middleware import SecurityMiddleware, validate_input, require_api_key, log_security_event
-
-# 检测Python版本
-PYTHON_VERSION = platform.python_version()
-print(f"Python版本: {PYTHON_VERSION}")
-
 from lightrag import LightRAG
+from lightrag.llm import openai_complete_if_cache, openai_embedding
 from lightrag.utils import EmbeddingFunc
-
-# 兼容性导入 - 处理不同版本的lightrag
-try:
-    from lightrag.llm import openai_complete_if_cache, openai_embedding
-except ImportError:
-    # 如果新版本中没有这些函数，使用替代方案
-    from lightrag.llm import openai_complete, openai_embedding
-    openai_complete_if_cache = openai_complete
+from security_middleware import SecurityMiddleware, validate_input, require_api_key, log_security_event
 
 app = Flask(__name__)
 

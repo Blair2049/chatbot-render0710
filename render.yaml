@@ -1,12 +1,12 @@
 services:
   - type: web
-    name: stakeholder-management-chatbot
+    name: stakeholder-chatbot
     env: python
-    pythonVersion: "3.11"
     buildCommand: pip install -r requirements.txt
     startCommand: python chatbot_web.py
     envVars:
       - key: OPENAI_API_KEY
         sync: false
-    healthCheckPath: /health
-    autoDeploy: true 
+      - key: PORT
+        value: 8081
+    plan: free 
