@@ -1015,12 +1015,12 @@
             <div class="chat-section">
                 <!-- Tab Navigation -->
                 <div class="tab-navigation">
-                    <button class="tab-button active" onclick="switchTab('chat')">💬 Chat</button>
-                    <button class="tab-button" onclick="switchTab('token-stats')">📊 Token Stats</button>
+                    <button class="tab-button" onclick="switchTab('chat')">💬 Chat</button>
+                    <button class="tab-button active" onclick="switchTab('token-stats')">📊 Token Stats</button>
                 </div>
                 
                 <!-- Chat Tab -->
-                <div id="chat-tab" class="tab-content active">
+                <div id="chat-tab" class="tab-content">
                 <div class="controls">
                     <div class="control-group">
                         <label for="mode">Query Mode:</label>
@@ -1088,7 +1088,7 @@
             </div>
             
                 <!-- Token Stats Tab -->
-                <div id="token-stats-tab" class="tab-content">
+                <div id="token-stats-tab" class="tab-content active">
                     <div class="token-stats-container">
                         <div class="stats-controls">
                             <div class="control-group">
@@ -2061,6 +2061,7 @@
             initializeSidebar();
             updateStats();
             loadTokenHistory(); // 新增：加载token历史数据
+            loadTokenStats(); // 新增：加载token统计数据
         };
     </script>
 

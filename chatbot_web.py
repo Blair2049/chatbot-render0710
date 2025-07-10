@@ -657,7 +657,13 @@ def get_token_usage():
             daily_stats = defaultdict(lambda: {"total_tokens": 0, "input_tokens": 0, "output_tokens": 0, "cost": 0, "requests": 0})
             
             for record in token_usage_history:
-                date = record["timestamp"][:10]  # 取日期部分
+                # 将ISO格式时间戳转换为本地日期格式
+                try:
+                    from datetime import datetime
+                    dt = datetime.fromisoformat(record["timestamp"].replace('Z', '+00:00'))
+                    date = dt.strftime("%Y/%m/%d")  # 格式化为 YYYY/MM/DD
+                except:
+                    date = record["timestamp"][:10]  # 备用方案
                 daily_stats[date]["total_tokens"] += record.get("total_tokens", 0)
                 daily_stats[date]["input_tokens"] += record.get("input_tokens", 0)
                 daily_stats[date]["output_tokens"] += record.get("output_tokens", 0)
