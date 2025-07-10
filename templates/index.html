@@ -1556,6 +1556,11 @@
             const canvas = document.getElementById('tokenChart');
             const ctx = canvas.getContext('2d');
             
+            // 确保canvas尺寸正确
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth - 20; // 减去padding
+            canvas.height = 200;
+            
             // 清除画布
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
@@ -1624,28 +1629,11 @@
                 ctx.lineWidth = 1;
                 ctx.strokeRect(x, y, barWidth, barHeight);
                 
-                // 添加鼠标悬停事件
-                canvas.addEventListener('mousemove', function(e) {
-                    const rect = canvas.getBoundingClientRect();
-                    const mouseX = e.clientX - rect.left;
-                    const mouseY = e.clientY - rect.top;
-                    
-                    // 检查鼠标是否在柱子附近
-                    if (mouseX >= x && mouseX <= x + barWidth && 
-                        mouseY >= y && mouseY <= canvas.height - padding) {
-                        showTooltip(e, item);
-                    } else {
-                        hideTooltip();
-                    }
-                });
-                
-                // 绘制数值标签 - 增强显示效果
-                ctx.fillStyle = '#FFFFFF';
+                // 添加数据标签
+                ctx.fillStyle = '#2c3e50';
                 ctx.font = 'bold 11px Arial';
                 ctx.textAlign = 'center';
-                
-                // 添加背景阴影效果
-                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
                 ctx.shadowBlur = 2;
                 ctx.shadowOffsetX = 1;
                 ctx.shadowOffsetY = 1;
@@ -1659,8 +1647,8 @@
                 ctx.shadowOffsetY = 0;
                 
                 // 绘制时间标签
-                const timestamp = new Date(item.timestamp);
-                const timeStr = timestamp.toLocaleTimeString('en-US', { 
+                const timeLabel = new Date(item.timestamp);
+                const timeDisplay = timeLabel.toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit' 
                 });
@@ -1668,7 +1656,38 @@
                 ctx.fillStyle = '#FFA500'; // 改为橙色
                 ctx.font = 'bold 10px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText(timeStr, x + barWidth/2, canvas.height - padding + 15);
+                ctx.fillText(timeDisplay, x + barWidth/2, canvas.height - padding + 15);
+            });
+            
+            // 添加统一的鼠标悬停事件处理
+            canvas.addEventListener('mousemove', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                // 检查鼠标是否在任何柱子附近
+                let hoveredItem = null;
+                dataPoints.forEach((item, index) => {
+                    const x = padding + index * barSpacing + (barSpacing - barWidth) / 2;
+                    const barHeight = (item.total_tokens / maxTokens) * chartHeight;
+                    const y = canvas.height - padding - barHeight;
+                    
+                    if (mouseX >= x && mouseX <= x + barWidth && 
+                        mouseY >= y && mouseY <= canvas.height - padding) {
+                        hoveredItem = item;
+                    }
+                });
+                
+                if (hoveredItem) {
+                    showTooltip(e, hoveredItem);
+                } else {
+                    hideTooltip();
+                }
+            });
+            
+            // 鼠标离开canvas时隐藏tooltip
+            canvas.addEventListener('mouseleave', function() {
+                hideTooltip();
             });
         }
         
@@ -1692,8 +1711,8 @@
                 pointer-events: none;
             `;
             
-            const timestamp = new Date(data.timestamp);
-            const timeStr = timestamp.toLocaleString('en-US', {
+            const tooltipTime = new Date(data.timestamp);
+            const tooltipTimeStr = tooltipTime.toLocaleString('en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
@@ -1702,7 +1721,7 @@
             });
             
             tooltip.innerHTML = `
-                <div><strong>Time:</strong> ${timeStr}</div>
+                <div><strong>Time:</strong> ${tooltipTimeStr}</div>
                 <div><strong>Input Tokens:</strong> ${data.input_tokens.toLocaleString()}</div>
                 <div><strong>Output Tokens:</strong> ${data.output_tokens.toLocaleString()}</div>
                 <div><strong>Total Tokens:</strong> ${data.total_tokens.toLocaleString()}</div>
@@ -1827,6 +1846,27 @@
                 closeHistoryModal();
             }
         });
+
+        // 窗口大小变化时重绘图表
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                // 如果当前在token stats tab，重新加载图表
+                const activeTab = document.querySelector('.tab-button.active');
+                if (activeTab && activeTab.getAttribute('onclick').includes('token-stats')) {
+                    loadTokenHistory();
+                }
+            }, 300); // 延迟300ms避免频繁重绘
+        });
+
+        // 定期刷新图表数据（每30秒）
+        setInterval(function() {
+            const activeTab = document.querySelector('.tab-button.active');
+            if (activeTab && activeTab.getAttribute('onclick').includes('token-stats')) {
+                loadTokenHistory();
+            }
+        }, 30000); // 30秒刷新一次
 
         // 更新历史记录显示
         function updateHistoryDisplay() {
