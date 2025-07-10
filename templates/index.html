@@ -1193,6 +1193,9 @@
                     
                     // Update statistics immediately
                     await updateStats();
+                    
+                    // Refresh token chart after successful chat
+                    refreshTokenChartAfterChat();
                 } else {
                     addMessage('Sorry, I encountered an error while processing your question. Please try again.', 'error');
                 }
@@ -1350,19 +1353,46 @@
             }
         }
         
+        // 缓存token历史数据
+        let cachedTokenHistory = null;
+        let lastTokenHistoryUpdate = 0;
+        const CACHE_DURATION = 10000; // 10秒缓存
+
         // 新增：加载token使用历史记录（用于图表显示）
         async function loadTokenHistory() {
+            const canvas = document.getElementById('tokenChart');
+            const ctx = canvas.getContext('2d');
+            
+            // 检查缓存
+            const now = Date.now();
+            if (cachedTokenHistory && (now - lastTokenHistoryUpdate) < CACHE_DURATION) {
+                drawTokenHistoryChart(cachedTokenHistory);
+                return;
+            }
+            
+            // 立即显示加载状态
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#666';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Loading chart data...', canvas.width / 2, canvas.height / 2);
+            
             try {
                 const response = await fetch('/api/token_usage');
                 const historyData = await response.json();
                 
                 if (Array.isArray(historyData)) {
+                    // 更新缓存
+                    cachedTokenHistory = historyData;
+                    lastTokenHistoryUpdate = now;
                     drawTokenHistoryChart(historyData);
                 } else {
                     console.error('Invalid token history data format');
+                    ctx.fillText('No data available', canvas.width / 2, canvas.height / 2);
                 }
             } catch (error) {
                 console.error('Error loading token history:', error);
+                ctx.fillText('Error loading data', canvas.width / 2, canvas.height / 2);
             }
         }
 
@@ -1573,8 +1603,8 @@
                 return;
             }
             
-            // 过滤有效数据点
-            const dataPoints = historyData.filter(item => item.total_tokens > 0);
+            // 过滤有效数据点并限制数量以提高性能
+            const dataPoints = historyData.filter(item => item.total_tokens > 0).slice(-20); // 只显示最近20条
             if (dataPoints.length === 0) {
                 ctx.fillStyle = '#666';
                 ctx.font = '16px Arial';
@@ -1860,13 +1890,15 @@
             }, 300); // 延迟300ms避免频繁重绘
         });
 
-        // 定期刷新图表数据（每30秒）
-        setInterval(function() {
+        // 聊天完成后刷新token图表
+        function refreshTokenChartAfterChat() {
             const activeTab = document.querySelector('.tab-button.active');
             if (activeTab && activeTab.getAttribute('onclick').includes('token-stats')) {
+                // 清除缓存强制刷新
+                cachedTokenHistory = null;
                 loadTokenHistory();
             }
-        }, 30000); // 30秒刷新一次
+        }
 
         // 更新历史记录显示
         function updateHistoryDisplay() {

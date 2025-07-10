@@ -459,7 +459,7 @@ def query_with_best_mode(question, language):
             
             # 记录查询历史
             query_record = {
-                "timestamp": get_current_time(),
+                "timestamp": get_local_time().isoformat(),
                 "question": question,
                 "response": best_result["response"],
                 "mode": best_mode,
@@ -558,7 +558,7 @@ def chat():
                 
                 # 记录查询历史
                 query_record = {
-                    "timestamp": get_current_time(),
+                    "timestamp": get_local_time().isoformat(),
                     "question": question,
                     "response": response,
                     "mode": mode,
