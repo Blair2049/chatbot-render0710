@@ -71,6 +71,7 @@
             color: var(--text-primary);
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
@@ -82,6 +83,72 @@
         .header p {
             font-size: 1.1em;
             opacity: 0.9;
+        }
+
+        .user-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--button-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid var(--border-color);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .user-avatar .avatar-text {
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .logout-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            min-width: 120px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .logout-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .logout-option {
+            padding: 12px 16px;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s ease;
+            border-radius: 4px;
+            margin: 4px;
+        }
+
+        .logout-option:hover {
+            background: var(--bg-quaternary);
         }
 
         .main-content {
@@ -983,31 +1050,39 @@
             <span class="toggle-icon">▶</span>
         </button>
 
-        <div class="container">
+        <!-- 用户头像 - 固定在页面右上角 -->
+    <div class="user-menu">
+        <div class="user-avatar" onclick="toggleUserMenu()">
+            <div class="avatar-text">A</div>
+        </div>
+        <div class="logout-dropdown" id="logoutDropdown">
+            <a href="/logout" class="logout-option">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
         <div class="header">
             <div style="position: relative; text-align: center;">
                 <h1>🎯 Stakeholder Management Chatbot</h1>
                 <p>Intelligent Q&A system based on stakeholder management documents</p>
-                <button id="themeToggle" onclick="toggleTheme()" style="
-                    position: absolute;
-                    top: 50%;
-                    right: 0;
-                    transform: translateY(-50%);
-                    background: var(--button-bg);
-                    color: var(--text-primary);
-                    border: none;
-                    border-radius: 25px;
-                    padding: 10px 20px;
-                    cursor: pointer;
-                    font-size: 14px;
-                    transition: all 0.3s ease;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                ">
-                    <span id="themeIcon">🌙</span>
-                    <span id="themeText">Dark Mode</span>
-                </button>
+                <div style="position: absolute; top: 50%; right: 0; transform: translateY(-50%); display: flex; gap: 10px;">
+                    <button id="themeToggle" onclick="toggleTheme()" style="
+                        background: var(--button-bg);
+                        color: var(--text-primary);
+                        border: none;
+                        border-radius: 25px;
+                        padding: 10px 20px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        transition: all 0.3s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    ">
+                        <span id="themeIcon">🌙</span>
+                        <span id="themeText">Dark Mode</span>
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -1015,12 +1090,12 @@
             <div class="chat-section">
                 <!-- Tab Navigation -->
                 <div class="tab-navigation">
-                    <button class="tab-button" onclick="switchTab('chat')">💬 Chat</button>
-                    <button class="tab-button active" onclick="switchTab('token-stats')">📊 Token Stats</button>
+                    <button class="tab-button active" onclick="switchTab('chat')">💬 Chat</button>
+                    <button class="tab-button" onclick="switchTab('token-stats')">📊 Token Stats</button>
                 </div>
                 
                 <!-- Chat Tab -->
-                <div id="chat-tab" class="tab-content">
+                <div id="chat-tab" class="tab-content active">
                 <div class="controls">
                     <div class="control-group">
                         <label for="mode">Query Mode:</label>
@@ -1088,7 +1163,7 @@
             </div>
             
                 <!-- Token Stats Tab -->
-                <div id="token-stats-tab" class="tab-content active">
+                <div id="token-stats-tab" class="tab-content">
                     <div class="token-stats-container">
                         <div class="stats-controls">
                             <div class="control-group">
@@ -2053,6 +2128,34 @@
                 themeIcon.textContent = '🌙';
                 themeText.textContent = 'Dark Mode';
             }
+        }
+
+        // 用户菜单切换函数
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('logoutDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // 点击其他地方关闭用户菜单
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            const dropdown = document.getElementById('logoutDropdown');
+            
+            if (!userMenu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // 登出函数
+        function logout() {
+            fetch('/logout')
+                .then(() => {
+                    window.location.href = '/login';
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                    window.location.href = '/login';
+                });
         }
 
         // Load initial statistics when page loads

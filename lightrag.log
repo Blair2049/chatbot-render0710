@@ -1,0 +1,53 @@
+2025-07-11 13:45:35,387 - lightrag - INFO - Logger initialized for working directory: ./stakeholder_management_rag_sync
+2025-07-11 13:45:35,460 - lightrag - INFO - Load KV llm_response_cache with 6 data
+2025-07-11 13:45:35,465 - lightrag - INFO - Load KV full_docs with 11 data
+2025-07-11 13:45:35,474 - lightrag - INFO - Load KV text_chunks with 346 data
+2025-07-11 13:45:35,544 - lightrag - INFO - Loaded graph from ./stakeholder_management_rag_sync/graph_chunk_entity_relation.graphml with 4403 nodes, 2986 edges
+2025-07-11 13:45:35,824 - lightrag - INFO - Loaded document status storage with 11 records
+2025-07-11 13:55:31,844 - lightrag - INFO - Logger initialized for working directory: ./stakeholder_management_rag_sync
+2025-07-11 13:55:31,922 - lightrag - INFO - Load KV llm_response_cache with 6 data
+2025-07-11 13:55:31,930 - lightrag - INFO - Load KV full_docs with 11 data
+2025-07-11 13:55:31,938 - lightrag - INFO - Load KV text_chunks with 346 data
+2025-07-11 13:55:32,010 - lightrag - INFO - Loaded graph from ./stakeholder_management_rag_sync/graph_chunk_entity_relation.graphml with 4403 nodes, 2986 edges
+2025-07-11 13:55:32,510 - lightrag - INFO - Loaded document status storage with 11 records
+2025-07-11 13:59:08,577 - lightrag - INFO - Logger initialized for working directory: ./stakeholder_management_rag_sync
+2025-07-11 13:59:08,664 - lightrag - INFO - Load KV llm_response_cache with 6 data
+2025-07-11 13:59:08,672 - lightrag - INFO - Load KV full_docs with 11 data
+2025-07-11 13:59:08,681 - lightrag - INFO - Load KV text_chunks with 346 data
+2025-07-11 13:59:08,748 - lightrag - INFO - Loaded graph from ./stakeholder_management_rag_sync/graph_chunk_entity_relation.graphml with 4403 nodes, 2986 edges
+2025-07-11 13:59:09,039 - lightrag - INFO - Loaded document status storage with 11 records
+2025-07-11 14:08:36,078 - lightrag - INFO - Logger initialized for working directory: ./stakeholder_management_rag_sync
+2025-07-11 14:08:36,146 - lightrag - INFO - Load KV llm_response_cache with 6 data
+2025-07-11 14:08:36,152 - lightrag - INFO - Load KV full_docs with 11 data
+2025-07-11 14:08:36,161 - lightrag - INFO - Load KV text_chunks with 346 data
+2025-07-11 14:08:36,234 - lightrag - INFO - Loaded graph from ./stakeholder_management_rag_sync/graph_chunk_entity_relation.graphml with 4403 nodes, 2986 edges
+2025-07-11 14:08:36,531 - lightrag - INFO - Loaded document status storage with 11 records
+2025-07-11 14:16:04,215 - lightrag - INFO - Logger initialized for working directory: ./stakeholder_management_rag_sync
+2025-07-11 14:16:04,283 - lightrag - INFO - Load KV llm_response_cache with 6 data
+2025-07-11 14:16:04,287 - lightrag - INFO - Load KV full_docs with 11 data
+2025-07-11 14:16:04,293 - lightrag - INFO - Load KV text_chunks with 346 data
+2025-07-11 14:16:04,356 - lightrag - INFO - Loaded graph from ./stakeholder_management_rag_sync/graph_chunk_entity_relation.graphml with 4403 nodes, 2986 edges
+2025-07-11 14:16:04,619 - lightrag - INFO - Loaded document status storage with 11 records
+2025-07-11 14:21:41,196 - lightrag - INFO - Creating a new event loop in main thread.
+2025-07-11 14:29:23,201 - lightrag - INFO - Logger initialized for working directory: ./stakeholder_management_rag_sync
+2025-07-11 14:29:23,269 - lightrag - INFO - Load KV llm_response_cache with 6 data
+2025-07-11 14:29:23,274 - lightrag - INFO - Load KV full_docs with 11 data
+2025-07-11 14:29:23,279 - lightrag - INFO - Load KV text_chunks with 346 data
+2025-07-11 14:29:23,340 - lightrag - INFO - Loaded graph from ./stakeholder_management_rag_sync/graph_chunk_entity_relation.graphml with 4403 nodes, 2986 edges
+2025-07-11 14:29:23,603 - lightrag - INFO - Loaded document status storage with 11 records
+2025-07-11 14:32:14,915 - lightrag - INFO - Logger initialized for working directory: ./stakeholder_management_rag_sync
+2025-07-11 14:32:14,988 - lightrag - INFO - Load KV llm_response_cache with 6 data
+2025-07-11 14:32:14,993 - lightrag - INFO - Load KV full_docs with 11 data
+2025-07-11 14:32:14,999 - lightrag - INFO - Load KV text_chunks with 346 data
+2025-07-11 14:32:15,061 - lightrag - INFO - Loaded graph from ./stakeholder_management_rag_sync/graph_chunk_entity_relation.graphml with 4403 nodes, 2986 edges
+2025-07-11 14:32:15,327 - lightrag - INFO - Loaded document status storage with 11 records
+2025-07-11 14:32:56,227 - lightrag - INFO - Creating a new event loop in main thread.
+2025-07-11 14:32:57,696 - lightrag - INFO - kw_prompt result:
+2025-07-11 14:32:57,697 - lightrag - WARNING - low_level_keywords and high_level_keywords is empty
+2025-07-11 14:32:59,428 - lightrag - INFO - kw_prompt result:
+2025-07-11 14:32:59,429 - lightrag - WARNING - low_level_keywords and high_level_keywords is empty
+2025-07-11 14:33:00,348 - lightrag - INFO - kw_prompt result:
+2025-07-11 14:33:00,349 - lightrag - WARNING - low_level_keywords and high_level_keywords is empty
+2025-07-11 14:33:08,624 - lightrag - INFO - Creating a new event loop in main thread.
+2025-07-11 14:33:11,829 - lightrag - INFO - Creating a new event loop in main thread.
+2025-07-11 14:37:48,361 - lightrag - INFO - Creating a new event loop in main thread.

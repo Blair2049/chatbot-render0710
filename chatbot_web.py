@@ -8,6 +8,9 @@ import asyncio
 import tiktoken
 import platform
 from pathlib import Path
+import pytz
+from flask import session, redirect, url_for
+from functools import wraps
 # 添加当前目录到Python路径，以便导入本地lightrag模块
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -81,6 +84,18 @@ from lightrag.utils import EmbeddingFunc
 from security_middleware import SecurityMiddleware, validate_input, require_api_key, log_security_event
 
 app = Flask(__name__)
+
+# 设置Flask secret key用于session
+app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this')
+
+# 登录验证装饰器
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # 初始化安全中间件
 security = SecurityMiddleware(app)
@@ -492,10 +507,44 @@ def query_with_best_mode(question, language):
         return {"error": f"查询出错: {str(e)}"}
 
 @app.route('/')
+@login_required
 def index():
     return render_template('index.html')
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # 检查是否是JSON请求
+        if request.is_json:
+            data = request.get_json()
+            username = data.get('username')
+            password = data.get('password')
+        else:
+            username = request.form.get('username')
+            password = request.form.get('password')
+
+        # 这里应该从数据库或配置文件加载实际的用户名和密码
+        # 为了简单起见，这里使用硬编码的值
+        if username == 'admin' and password == 'password':
+            session['logged_in'] = True
+            if request.is_json:
+                return jsonify({'success': True, 'redirect': url_for('index')})
+            else:
+                return redirect(url_for('index'))
+        else:
+            if request.is_json:
+                return jsonify({'success': False, 'error': 'Invalid username or password'}), 401
+            else:
+                return render_template('login.html', error='Invalid username or password')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
 @app.route('/chat', methods=['POST'])
+@login_required
 @require_api_key
 def chat():
     try:
@@ -605,6 +654,7 @@ def chat():
         return jsonify({'error': f'错误：{str(e)}'})
 
 @app.route('/stats')
+@login_required
 def get_stats():
     """获取统计信息"""
     return jsonify({
@@ -614,6 +664,7 @@ def get_stats():
     })
 
 @app.route('/token_usage')
+@login_required
 def get_token_usage():
     """获取token使用情况"""
     try:
@@ -696,6 +747,7 @@ def get_token_usage():
         }), 500
 
 @app.route('/api/token_usage')
+@login_required
 def get_token_usage_history():
     """获取token使用历史记录（用于前端图表）"""
     try:
@@ -707,6 +759,7 @@ def get_token_usage_history():
         }), 500
 
 @app.route('/test_modes')
+@login_required
 def test_modes():
     """测试不同查询模式"""
     test_question = "What are the key stakeholder engagement strategies in the Scarborough project?"
@@ -732,6 +785,7 @@ def test_modes():
     return jsonify({'test_results': results})
 
 @app.route('/health')
+@login_required
 def health():
     return jsonify({
         'status': 'healthy', 
