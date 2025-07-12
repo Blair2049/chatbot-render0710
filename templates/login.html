@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - Stakeholder Management Chatbot</title>
+    <title>Login - Stakeholder Management Chatbot</title>
     <style>
         * {
             margin: 0;
@@ -136,22 +136,22 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h1>欢迎登录</h1>
+            <h1>Welcome Back</h1>
             <p>Stakeholder Management Chatbot</p>
         </div>
         
         <form id="loginForm">
             <div class="form-group">
-                <label for="username">用户名</label>
-                <input type="text" id="username" name="username" required placeholder="请输入用户名">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required placeholder="Enter your username">
             </div>
             
             <div class="form-group">
-                <label for="password">密码</label>
-                <input type="password" id="password" name="password" required placeholder="请输入密码">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
             </div>
             
-            <button type="submit" class="login-btn">登录</button>
+            <button type="submit" class="login-btn">Sign In</button>
         </form>
         
         <div class="error-message" id="errorMessage"></div>
@@ -169,7 +169,7 @@
             const successMessage = document.getElementById('successMessage');
             const loading = document.getElementById('loading');
             
-            // 隐藏之前的消息
+            // Hide previous messages
             errorMessage.style.display = 'none';
             successMessage.style.display = 'none';
             loading.style.display = 'block';
@@ -189,27 +189,27 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    successMessage.textContent = '登录成功！正在跳转...';
+                    successMessage.textContent = 'Login successful! Redirecting...';
                     successMessage.style.display = 'block';
                     loading.style.display = 'none';
                     
-                    // 延迟跳转到主页
+                    // Delay redirect to main page
                     setTimeout(() => {
                         window.location.href = '/';
                     }, 1000);
                 } else {
-                    errorMessage.textContent = data.error || '登录失败，请检查用户名和密码';
+                    errorMessage.textContent = data.error || 'Login failed. Please check your username and password.';
                     errorMessage.style.display = 'block';
                     loading.style.display = 'none';
                 }
             } catch (error) {
-                errorMessage.textContent = '网络错误，请稍后重试';
+                errorMessage.textContent = 'Network error. Please try again later.';
                 errorMessage.style.display = 'block';
                 loading.style.display = 'none';
             }
         });
         
-        // 回车键提交
+        // Enter key submit
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('loginForm').dispatchEvent(new Event('submit'));
